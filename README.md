@@ -1,4 +1,4 @@
-# Gmail API Setup and Usage Guide
+# Setup and Usage Guide
 
 A complete guide to authenticate with Google using OAuth 2.0 and interact with Gmail emails programmatically in Python.
 
@@ -83,4 +83,14 @@ Run the processing script (to process emails based on your rules):
 
 ```bash
 python process_emails.py
+```
+
+## 10. Run Test Cases
+
+```bash
+python tests/test_fetch_emails.py
+```
+
+```bash
+python tests/test_process_emails.py
 ```
