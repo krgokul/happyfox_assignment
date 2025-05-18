@@ -7,7 +7,7 @@ from pydantic import ValidationError
 from db import crud
 from db.database import SessionLocal
 from db.models import Email
-from schema import RuleConfig
+from schema import Rule
 from utils import get_gmail_service
 
 USER_ID = "me"
@@ -31,14 +31,14 @@ def modify_gmail_messages(
         print(f"Failed to modify Gmail messages: {e}")
 
 
-def build_rule_expression(rule):
-    field = rule.get("field")
-    predicate = rule.get("predicate")
-    value = rule.get("value")
-    unit = rule.get("unit")
+def build_condition_expression(condition):
+    field = condition.get("field")
+    predicate = condition.get("predicate")
+    value = condition.get("value")
+    unit = condition.get("unit")
 
     if not field or not predicate:
-        print("Missing 'field' or 'predicate' in rule")
+        print("Missing 'field' or 'predicate' in condition")
         return None
 
     column_attr = getattr(Email, field, None)
@@ -82,9 +82,9 @@ def build_rule_expression(rule):
     return None
 
 
-def combine_rule_expressions(rules, match):
-    expressions = [build_rule_expression(rule) for rule in rules]
-    print(f"Combining {len(expressions)} rule expressions with match='{match}'")
+def combine_condition_expressions(conditions, match):
+    expressions = [build_condition_expression(condition) for condition in conditions]
+    print(f"Combining {len(expressions)} conditional expressions with match='{match}'")
     return and_(*expressions) if match == "all" else or_(*expressions)
 
 
@@ -124,8 +124,7 @@ def main():
     try:
         with open("rules_config.json", "r") as rule_file:
             data = json.load(rule_file)
-            rules_config_obj = RuleConfig(**data)
-            rules_config = rules_config_obj.model_dump()
+            rule_obj = Rule(**data)
             print("Loaded and validated rules_config.json")
     except ValidationError as e:
         print("Invalid RuleConfig format.")
@@ -141,24 +140,30 @@ def main():
 
     print(f"{'='*10} Rule Evaluation {'='*10}")
 
-    rules = rules_config.get("rules", [])
-    match = rules_config.get("match", "all")
+    rules = rule_obj.model_dump().get("rules", [])
 
-    rule_expressions = combine_rule_expressions(rules, match)
-    matched_emails = crud.select_email_records(db_session, rule_expressions)
-    message_ids = [email.id for email in matched_emails]
+    for rule in rules:
+        print(f"Executing rule: {rule['name']}")
+        conditions = rule.get("conditions", [])
+        match = rule.get("match", "all")
 
-    if not message_ids:
-        print("No matching emails found")
-        return
+        condition_expressions = combine_condition_expressions(conditions, match)
+        matched_emails = crud.select_email_records(db_session, condition_expressions)
+        message_ids = [email.id for email in matched_emails]
 
-    print(f"Found {len(message_ids)} matching emails")
+        if not message_ids:
+            print("No matching emails found")
+            continue
 
-    print(f"{'='*10} Gmail Action {'='*10}")
-    labels_to_add, labels_to_remove = parse_label_actions(
-        db_session, rules_config.get("actions", [])
-    )
-    modify_gmail_messages(gmail_service, message_ids, labels_to_add, labels_to_remove)
+        print(f"Found {len(message_ids)} matching emails")
+
+        labels_to_add, labels_to_remove = parse_label_actions(
+            db_session, rule.get("actions", [])
+        )
+        modify_gmail_messages(
+            gmail_service, message_ids, labels_to_add, labels_to_remove
+        )
+        print(f"{'-'*20}")
 
 
 if __name__ == "__main__":

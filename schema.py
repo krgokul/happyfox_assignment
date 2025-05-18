@@ -14,7 +14,7 @@ class MatchTypeEnum(str, Enum):
     ANY = "any"
 
 
-class RuleBase(BaseModel):
+class ConditionBase(BaseModel):
     field: str
 
 
@@ -25,7 +25,7 @@ class PredicateEnum(str, Enum):
     DOES_NOT_CONTAINS = "does_not_contains"
 
 
-class StringRule(RuleBase):
+class StringCondition(ConditionBase):
     predicate: PredicateEnum
     value: str
 
@@ -40,7 +40,7 @@ class DateUnitEnum(str, Enum):
     MONTHS = "months"
 
 
-class DateRule(RuleBase):
+class DateCondition(ConditionBase):
     predicate: DatePredicateEnum
     value: int
     unit: DateUnitEnum
@@ -51,11 +51,12 @@ class Action(BaseModel):
     target: Optional[str] = None
 
 
-Rule = Union[StringRule, DateRule]
-
-
 class RuleConfig(BaseModel):
-    description: str
-    rules: List[Rule]
+    name: str
+    conditions: List[Union[StringCondition, DateCondition]]
     match: MatchTypeEnum
     actions: List[Action]
+
+
+class Rule(BaseModel):
+    rules: List[RuleConfig]
