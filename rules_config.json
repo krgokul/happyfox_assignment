@@ -1,0 +1,27 @@
+{
+  "description": "Rule",
+  "rules": [
+    { "field": "sender", "predicate": "contains", "value": "kaggle.com" },
+    {
+      "field": "subject",
+      "predicate": "contains",
+      "value": "Introducing the OpenAI"
+    },
+    {
+      "field": "date_received",
+      "predicate": "lesser_than",
+      "value": 1,
+      "unit": "months"
+    }
+  ],
+  "match": "all",
+  "actions": [
+    {
+      "type": "move_message",
+      "target": "AP"
+    },
+    {
+      "type": "mark_as_unread"
+    }
+  ]
+}
