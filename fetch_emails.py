@@ -42,7 +42,12 @@ def fetch_email_lists(service):
         }
 
     try:
-        results = service.users().messages().list(userId=USER_ID, maxResults=MAX_RESULTS).execute()
+        results = (
+            service.users()
+            .messages()
+            .list(userId=USER_ID, maxResults=MAX_RESULTS)
+            .execute()
+        )
         messages = results.get("messages", [])
         print(f"Fetched {len(messages)} messages from Gmail.")
     except Exception as e:
@@ -52,7 +57,12 @@ def fetch_email_lists(service):
     records_to_insert = []
     for message in messages:
         try:
-            msg = service.users().messages().get(userId=USER_ID, id=message["id"]).execute()
+            msg = (
+                service.users()
+                .messages()
+                .get(userId=USER_ID, id=message["id"])
+                .execute()
+            )
             data = parse_message(msg)
             records_to_insert.append(data)
         except Exception as e:
@@ -81,7 +91,6 @@ def main():
         print("Inserted/Updated emails in the database.")
     else:
         print("No emails to update.")
-
 
 
 if __name__ == "__main__":
