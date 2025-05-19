@@ -31,19 +31,30 @@ A complete guide to authenticate with Google using OAuth 2.0 and interact with G
 4. Enter a name for your OAuth client (e.g., `Gmail API Client`).
 5. Click **Create**.
 
-## 5. Download `client_secret.json`
+## 5. Add Test Users to OAuth Consent Screen
+
+When the app is in testing mode, only test users can authorize it.
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Navigate to **APIs & Services > OAuth consent screen**.
+3. Scroll down to the **Test users** section.
+4. Click **+ Add users**.
+5. Enter the email addresses (Google accounts) of users you want to allow access.
+6. Click **Save and Continue**.
+
+## 6. Download `client_secret.json`
 
 1. After creation, you will see your client credentials.
 2. Click **Download JSON** to download the `client_secret.json` file.
-3. Save this file securely in your Python project directory (same folder as your script).
+3. Save this file in project root directory.
 
-## 6. Set Up Python Virtual Environment
+## 7. Set Up Python Virtual Environment
 
 ```bash
-python -m venv venv
+python3 -m venv venv
 ```
 
-## 7. Activate the virtual environment:
+## 8. Activate the virtual environment:
 
 - On Linux/macOS:
 
@@ -57,13 +68,13 @@ source venv/bin/activate
 venv\Scripts\activate
 ```
 
-## 8. Install the dependencies:
+## 9. Install the dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## 9. Running the Scripts
+## 10. Running the Scripts
 
 You have two Python scripts to interact with Gmail and your database:
 
@@ -76,21 +87,21 @@ You have two Python scripts to interact with Gmail and your database:
 Run the fetch script (to authenticate and fetch emails):
 
 ```bash
-python fetch_emails.py
+python3 fetch_emails.py
 ```
 
 Run the processing script (to process emails based on your rules):
 
 ```bash
-python process_emails.py
+python3 process_emails.py
 ```
 
-## 10. Run Test Cases
+## 11. Run Test Cases
 
 ```bash
-python tests/test_fetch_emails.py
+python3 tests/test_fetch_emails.py
 ```
 
 ```bash
-python tests/test_process_emails.py
+python3 tests/test_process_emails.py
 ```
